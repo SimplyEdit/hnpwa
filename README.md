@@ -45,3 +45,7 @@ It turns out that you can, if you have a server which has support for Edge Side 
 And now your server will make the request, instead of the browser. As the slowdown, the latency, is in the slow mobile network, this change will do the request on the fast network of your server instead.
 
 You will need to add a check in your javascript code to use the included data for the first page view, instead of calling the API.
+
+## Bonus
+
+You may have seen the files `dat.json` and `.dat-ignore`. That is because this PWA is also a decentralized website, using the [DAT protocol](https://www.datprotocol.com/). If you install the [Beaker browser](https://beakerbrowser.com/) and go to https://hnpwa.simplyedit.io/, Beaker will tell you that there is also a decentralized version of that website. Unfortunately only the HTTPS version works as a PWA, since the PWA specification forces use of HTTPS. Maybe that will change in the future.

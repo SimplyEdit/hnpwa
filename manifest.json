@@ -1,0 +1,30 @@
+{
+  "short_name": "Hackernews",
+  "name": "Hackernews with SimplyEdit",
+  "icons": [
+    {
+      "src": "camil-48x48.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "camil-96x96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "camil-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "camil-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "display" : "standalone",
+  "start_url": "/",
+  "theme_color" : "#4700ff",
+  "background_color": "#FFFFFF"
+}

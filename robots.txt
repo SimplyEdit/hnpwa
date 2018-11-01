@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /comments/
+Disallow: /top/
+Disallow: /ask/
+Disallow: /jobs/

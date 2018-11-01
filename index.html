@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Hackernews PWA - SimplyEdit</title>
+<link rel="icon" sizes="192x192" type="image/png" href="/camil_192x192.png">
+<link rel="icon" sizes="128x128" type="image/png" href="/camil_128x128.png">
+<link rel="icon" sizes="32x32" type="image/png" href="/camil_32x32.png">
+<link rel="icon" sizes="16x16" type="image/png" href="/camil_16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="preload" href="https://cdn.simplyedit.io/1/simply-edit.js" as="script">
+<link rel="preload" href="/js/simplyview/dist/simply.everything.js" as="script">
+<link rel="preload" href="https://api.hackerwebapp.com/news" as="fetch" crossorigin="anonymous">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#4700ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="A Hackernews PWA made with SimplyView">
+<style>
+:root {
+    --navbar-bg-color: #4700ff;
+    --navbar-color: #fff;
+    --dot-color: #4700ff;
+    --transparent-color: rgba(0,0,0,0);
+    --color: #666;
+    --content-color: #333;
+    --link-color: #111;
+    --visited-color: #333;
+}
+html, body {
+    height: 100%;
+    xoverflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: sans-serif;
+    font-size: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+}
+header {
+    display: block;
+    z-index: 10;
+    position: fixed;
+    top: 0;
+    width: 100vw;
+}
+main {
+    display: block;
+    overflow-x: hidden;
+    color: var(--color);
+    border-top: 50px solid transparent;
+    border-bottom: 50px solid transparent;
+}
+main a:link {
+    color: var(--link-color);
+    text-decoration: none;
+}
+main a:visited {
+    color: var(--visited-color);
+}
+main a:hover {
+    text-decoration: underline;
+}
+footer {
+    display: none;
+    box-shadow: 0 0 8px #888;
+    z-index:10;
+    position: fixed;
+    bottom: 0;
+    width: 100vw;
+    background-color: white;
+}
+section {
+    display: none;
+}
+section.simply-selected {
+    display: block;
+}
+/* toolbar */
+.toolbar, .toolbar li {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+.toolbar {
+    display: flex;
+    flex-direction: row;
+}
+.toolbar li {
+    flex: 1;
+}
+.toolbar-button {
+    display: block;
+    height: 50px;
+    line-height: 40px;
+    text-align: center;
+}
+
+/* navbar */
+.navbar {
+    background-color: var(--navbar-bg-color);
+    color: var(--navbar-color);
+    box-shadow: 0 0 8px #888;
+}
+.navbar a {
+    color: var(--navbar-color);
+    text-decoration: none;
+}
+.navbar-logo {
+    display: block;
+    width: 24px;
+    line-height: 24px;
+    border: 2px solid white;
+    text-align: center;
+    margin: 10px 16px;
+}
+.navbar .navbar-brand {
+    flex: 0;
+}
+.navbar a.active {
+    position: relative;
+}
+.navbar a.active::after {
+    content: "";
+    display: block;
+    border: 3px solid var(--navbar-color);
+    width: 0;
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    margin-left: -2px;
+    margin-top: -6px;
+}
+/* pager */
+body[data-paging] footer {
+    display: block;
+}
+.pager a.toolbar-button {
+	position: relative;
+    padding-top: 50px;
+    height: 50px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+.pager a.toolbar-button::before {
+    border-style: solid;
+    border-width: 2px 2px 0 0;
+    content: '';
+    display: inline-block;
+    height: 0.45em;
+    transform: rotate(-45deg);
+    width: 0.45em;
+    position: absolute;
+    left: 50px;
+    top: 21px;
+}
+.pager-next a.toolbar-button::before {
+    transform: rotate(45deg);
+    left: auto;
+    right: 50px;
+}
+.pager .pager-current {
+    line-height: 50px;
+    text-align: center;
+    flex: 4;
+}
+.pager-prev a.toolbar-button::before {
+    transform: rotate(-135deg);
+}
+
+/* loader */
+@keyframes loading {
+    0% {
+        box-shadow: 1em 0 0 0 var(--transparent-color), 3em 0 0 0 var(--transparent-color), 5em 0 0 0 var(--transparent-color);
+    }
+    25% {
+        box-shadow: 1em 0 0 0 var(--dot-color), 3em 0 0 0 var(--transparent-color), 5em 0 0 0 var(--transparent-color);
+    }
+    50% {
+        box-shadow: 1em 0 0 0 var(--dot-color), 3em 0 0 0 var(--dot-color), 5em 0 0 0 var(--transparent-color);
+    }
+    75% {
+        box-shadow: 1em 0 0 0 var(--dot-color), 3em 0 0 0 var(--dot-color), 5em 0 0 0 var(--dot-color);
+    }
+    100% {
+        box-shadow: 1em 0 0 0 var(--transparent-color), 3em 0 0 0 var(--transparent-color), 5em 0 0 0 var(--transparent-color);
+    }
+}
+[data-loading]::after {
+    display: block;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 20px;
+    margin-left: -3.5em;
+    margin-top: -.5em;
+    animation: loading 1s linear infinite;
+    border-radius: 50%;
+    width: 1em;
+    height: 1em;
+}
+/* fadein */
+@keyframes fadein {
+    from {opacity: 0.1}
+    to {opacity: 1}
+}
+main {
+    animation: fadein 0.2s linear;    
+}
+body[data-loading] main {
+    opacity: 0.3;
+    animation: inherit;
+}
+/* news */
+.items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.item {
+    list-style: none;
+    margin: 0;
+    padding: 16px;
+    border-top: 1px solid #DDD;
+    background-color: white;
+}
+.item:first-child {
+    border-top: 0;
+}
+/* item */
+.item h2 {
+    display: inline-block;
+    font-size: 1rem;
+    font-weight: normal;
+    margin: 8px 0;
+}
+.item a.comments-link {
+    display: inline-block;
+    margin-top: 8px;
+}
+
+/* comments */
+.comments {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 16px;
+}
+.comments.root {
+    margin: 16px 0 0 -16px;
+}
+.comments .comments {
+    border-left: 1px solid #DDD;
+}
+.comments:empty {
+    display: none;
+}
+/* comment */
+.comment {
+    list-style: none;
+    padding: 16px 0 0 0;
+    border-top: 1px solid #DDD;
+    background-color: white;
+}
+.comment .content {
+    color: var(--content-color);
+}
+.comment pre {
+    white-space: pre-wrap;
+}
+</style>
+</head>
+<body data-paging data-loading>
+    <header>
+        <nav class="navbar">
+            <ul class="toolbar">
+                <li class="navbar-brand"><a class="navbar-logo">Y</a></li>
+                <li><a href="/" class="active toolbar-button">top</a></li>
+                <li><a href="/new/" class="toolbar-button">new</a></li>
+                <li><a href="/show/" class="toolbar-button">show</a></li>
+                <li><a href="/ask/" class="toolbar-button">ask</a></li>
+                <li><a href="/jobs/" class="toolbar-button">jobs</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="body">
+        <section id="news" class="simply-selected" data-simply-group="sections">
+            <ul class="items root" data-simply-list="items">
+                <template>
+                    <li class="item">
+                        <a target="_blank" rel="noopener" data-simply-field="url" data-simply-content="fixed"
+                        ><h2 data-simply-field="title">title</h2></a>
+                        <br>
+                        <span data-simply-field="time_ago">time-ago</span> 
+                        &bull; by <span data-simply-field="user">user</span> 
+                        &bull; <span class="site">(<span data-simply-field="domain">domain</span>)</span>
+                        <br>                        
+                        <a data-simply-field="comments_link" data-simply-content="fixed" class="comments-link">
+                            <input type="hidden" data-simply-field="id">
+                            <span data-simply-field="comments_count">0</span> comments
+                        </a> &bull; <span data-simply-field="points">0</span> points
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <section id="comments" data-simply-group="sections">
+            <div class="item">
+                <a target="_blank" rel="noopener" data-simply-field="item.url" data-simply-content="fixed"
+                ><h2 data-simply-field="item.title">Title</h2></a>
+                (<span data-simply-field="item.domain">domain</span>)
+                <br>
+                <span data-simply-field="item.points">10</span> points 
+                &bull; by <span data-simply-field="item.user">user</span> 
+                <span data-simply-field="item.time_ago">time-ago</span>
+
+                <ul class="comments root" data-simply-list="item.comments">
+                    <template rel="comment"></template>
+                </ul>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <nav class="pager">
+            <ul class="toolbar">
+                <li class="pager-prev"><a data-simply-field="pager.prev" class="toolbar-button">previous</a></li>
+                <li class="pager-current" data-simply-field="pager.current">1</li>
+                <li class="pager-next"><a data-simply-field="pager.next" class="toolbar-button">next</a></li>
+            </ul>
+        </nav>
+    </footer>
+    <template id="comment">
+        <li class="comment">
+            <span data-simply-field="user" data-simply-action="user">user</span>
+            <span data-simply-field="time_ago">10</span> minutes ago
+            <div class="content" data-simply-field="content">Content</div>
+            <ul class="comments" data-simply-list="comments">
+                <template rel="comment"></template>
+            </ul>
+        </li>
+    </template>
+    <script src="https://cdn.simplyedit.io/1/simply-edit.js"
+        data-simply-storage="none"
+    ></script>
+    <script src="/js/simplyview/dist/simply.everything.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js');
+            });
+        }
+
+        simply.bind = false;
+        
+        var hnwapp = simply.app({
+            routes: {
+                '/comments/:id/': function(params) {
+                    hnwapp.actions.comments(params.id);
+                },
+                '/:section/:*': function(params) {
+                	hnwapp.actions.selectButton('/'+params.section+'/');
+                    var translate = {
+                        'top' : 'news',
+                        'new' : 'newest'
+                    };
+                    var section = translate[params.section] ? translate[params.section] : params.section;
+                    hnwapp.actions.list(section, parseInt(params.remainder));
+                },
+                '/': function(params) {
+                	hnwapp.actions.selectButton('/');
+                    hnwapp.actions.list('news');
+                }
+            },
+            commands: {
+                install: function(el) {
+                    el.style.display = '';
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice
+                    .then(function(choiceResult) {
+                        deferredPrompt = null;
+                    });
+                }
+            },
+            actions: {
+                comments: function(id) {
+                    document.body.setAttribute('data-loading','');
+                    document.body.removeAttribute('data-paging');
+                    return hnapi.get(id)
+                        .then(function(data) {
+                            hnwapp.view.item = data;
+                            document.body.removeAttribute('data-loading');
+                            return hnwapp.actions['simply-select'](document.getElementById('comments'), 'sections');
+                        });
+                },
+                list: function(section, page) {
+                    document.body.setAttribute('data-loading','');
+                    document.body.setAttribute('data-paging','');
+                    if (!page) {
+                        page = 1;
+                    }
+                    hnwapp.view.pager = {
+                        prev: (page>2 ? '/'+section+'/'+(page-1) : '/'+section+'/'),
+                        current: page,
+                        next: '/'+section+'/'+(page+1)
+                    };
+                    return hnapi.list(section, page)
+                        .then(function(data) {
+                            hnwapp.view.items = data;
+                            document.body.removeAttribute('data-loading');
+                            hnwapp.actions['simply-select'](document.getElementById('news'), 'sections');
+                            return data;
+                        });
+                },
+                selectButton: function(href) {
+                	if (href=='/news/') {
+                		href='/';
+                	}
+                  	document.body.querySelector('.active.toolbar-button').classList.remove('active');
+                	document.body.querySelector('.toolbar-button[href="'+href+'"]').classList.add('active');
+				},
+            }
+        });
+
+        var hnapi = (function() {
+            var baseURL = 'https://api.hackerwebapp.com/';
+            return {
+                list: function(section, page) {
+                    if (!page) {
+                        page = 1;
+                    }
+                    return fetch(baseURL + section + '?page='+page )
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        data.forEach(function(entry,index) {
+                            entry.comments_link = '/comments/'+entry.id+'/';
+                        });
+                        return data;
+                    });
+                },
+                get: function(id) {
+                    return fetch(baseURL + 'item/' + id)
+                    .then(function(response) {
+                        return response.json();
+                    });
+                }
+            };
+        })();
+
+        document.addEventListener('simply-data-changed', function() {
+            window.scrollTo(0,0);
+        });
+
+        var deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', function(evt) {
+            evt.preventDefault();
+            deferredPrompt = evt;
+            document.querySelector('.install').style.display = 'block';
+        });
+
+    </script>
+</body>
+</html>

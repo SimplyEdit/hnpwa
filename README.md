@@ -1,2 +1,2 @@
 # Hackernews PWA - SimplyView/SimplyEdit example
-[Lighthouse Score](./hnpwa.lighthouse.png)
+[Lighthouse Score](https://github.com/SimplyEdit/hnpwa/raw/master/hnpwa.lighthouse.png)

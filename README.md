@@ -2,6 +2,8 @@
 
 ![Lighthouse Score](https://github.com/SimplyEdit/hnpwa/raw/master/hnpwa.lighthouse.png)
 
+The score above was achieved on a Microsoft Surface GO over WiFi.
+
 [Live](https://hnpwa.simplyedit.io/) - [SimplyEdit/SimplyView reference](https://reference.simplyedit.io/) - [SimplyEdit.io](https://simplyedit.io/)
 
 This repository contains an example progressive web app (PWA) built with SimplyEdit/SimplyView. 

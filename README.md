@@ -2,7 +2,7 @@
 
 ![Lighthouse Score](https://github.com/SimplyEdit/hnpwa/raw/master/hnpwa.lighthouse.png)
 
-The score above was achieved on a Microsoft Surface GO over WiFi.
+The score above was achieved on a Microsoft Surface Go over WiFi.
 
 [Live](https://hnpwa.simplyedit.io/) - [SimplyEdit/SimplyView reference](https://reference.simplyedit.io/) - [SimplyEdit.io](https://simplyedit.io/)
 

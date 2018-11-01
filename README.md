@@ -2,7 +2,7 @@
 
 ![Lighthouse Score](https://github.com/SimplyEdit/hnpwa/raw/master/hnpwa.lighthouse.png)
 
-[Live](https://hnpwa.simplyedit.io/) - [SimplyEdit/SimplyView reference](https://reference.simplyedit.io/)
+[Live](https://hnpwa.simplyedit.io/) - [SimplyEdit/SimplyView reference](https://reference.simplyedit.io/) - [SimplyEdit.io](https://simplyedit.io/)
 
 This repository contains an example progressive web app (PWA) built with SimplyEdit/SimplyView. 
 There are many versions of this application using different javascript frameworks, read more about it at https://hnpwa.com

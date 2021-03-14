@@ -315,7 +315,7 @@ body[data-loading] main {
             <ul class="toolbar">
                 <li class="navbar-brand"><a class="navbar-logo">Y</a></li>
                 <li><a href="#news" class="active toolbar-button">top</a></li>
-                <li><a href="#new" class="toolbar-button">new</a></li>
+                <li><a href="#newest" class="toolbar-button">new</a></li>
                 <li><a href="#show" class="toolbar-button">show</a></li>
                 <li><a href="#ask" class="toolbar-button">ask</a></li>
                 <li><a href="#jobs" class="toolbar-button">jobs</a></li>
@@ -445,12 +445,7 @@ body[data-loading] main {
             },
             '/#:section/:*': function(params) {
             	hnpwa.actions.selectButton('#'+params.section);
-                var translate = {
-                    'top' : 'news',
-                    'new' : 'newest'
-                };
-                var section = translate[params.section] ? translate[params.section] : params.section;
-                hnpwa.actions.list(section, parseInt(params.remainder));
+                hnpwa.actions.list(params.section, parseInt(params.remainder));
             },
             '/:*': function(params) {
             	hnpwa.actions.selectButton('#news');
@@ -487,7 +482,10 @@ body[data-loading] main {
                     .then(function(data) {
                         hnpwa.view.item = data;
                         document.body.removeAttribute('data-loading');
-                        return hnpwa.actions['simply-select'](document.getElementById('comments'), 'sections');
+                        return hnpwa.actions['simply-select'](document.getElementById('comments'), 'sections')
+                        .then(() => {
+                            document.getElementById('comments').scrollTo(0,0);
+                        });
                     });
             },
             list: function(section, page) {
@@ -506,6 +504,10 @@ body[data-loading] main {
                         hnpwa.view.items = data;
                         document.body.removeAttribute('data-loading');
                         hnpwa.actions['simply-select'](document.getElementById('news'), 'sections');
+                        if (hnpwa.view.section!=section) {
+                            hnpwa.view.section = section;
+                            document.getElementById('news').scrollTo(0,0);
+                        }
                         return data;
                     });
             },
@@ -522,7 +524,8 @@ body[data-loading] main {
         view: {
             pager: {},
             items: [],
-            item: {}
+            item: {},
+            section: ''
         }
 
     });

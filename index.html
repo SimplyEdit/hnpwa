@@ -6,9 +6,9 @@
 <link rel="icon" sizes="128x128" type="image/png" href="/camil_128x128.png">
 <link rel="icon" sizes="32x32" type="image/png" href="/camil_32x32.png">
 <link rel="icon" sizes="16x16" type="image/png" href="/camil_16x16.png">
-<link rel="manifest" href="/manifest.json">
-<link rel="preload" href="https://cdn.simplyedit.io/1/simply-edit.js" as="script">
-<link rel="preload" href="/js/simplyview/dist/simply.everything.js" as="script">
+<link rel="manifest" href="manifest.json">
+<link rel="preload" href="//cdn.simplyedit.io/1/simply-edit.js" as="script">
+<link rel="preload" href="js/simplyview/dist/simply.everything.js" as="script">
 <link rel="preload" href="https://api.hackerwebapp.com/news" as="fetch" crossorigin="anonymous">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -17,6 +17,15 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="description" content="A Hackernews PWA made with SimplyView">
 <style>
+/*
+ * Hello there
+ * This is an hackernews (news.ycombinator.com) reader application as a PWA, following
+ * the rules of hnpwa.com. It is build using SimplyEdit and SimplyView
+ * See https://simplyedit.io and https://github.com/simplyedit/simplyview
+ *
+ * The application is fully contained in this single HTML file, because it is faster
+ * and because the implemenation is short enough to be possible.
+ */
 :root {
     --navbar-bg-color: #4700ff;
     --navbar-color: #fff;
@@ -32,7 +41,7 @@
 }
 html, body {
     height: 100%;
-    xoverflow: hidden;
+    overflow: hidden;
     margin: 0;
     padding: 0;
 }
@@ -49,8 +58,9 @@ header {
     width: 100vw;
 }
 main {
+    height: 100%;
     display: block;
-    overflow-x: hidden;
+    overflow: hidden;
     color: var(--color);
     border-top: 50px solid transparent;
     border-bottom: 50px solid transparent;
@@ -79,6 +89,8 @@ section {
 }
 section.simply-selected {
     display: block;
+    height: 100%;
+    overflow: auto;
 }
 /* toolbar */
 .toolbar, .toolbar li {
@@ -302,11 +314,11 @@ body[data-loading] main {
         <nav class="navbar">
             <ul class="toolbar">
                 <li class="navbar-brand"><a class="navbar-logo">Y</a></li>
-                <li><a href="/" class="active toolbar-button">top</a></li>
-                <li><a href="/new/" class="toolbar-button">new</a></li>
-                <li><a href="/show/" class="toolbar-button">show</a></li>
-                <li><a href="/ask/" class="toolbar-button">ask</a></li>
-                <li><a href="/jobs/" class="toolbar-button">jobs</a></li>
+                <li><a href="#news" class="active toolbar-button">top</a></li>
+                <li><a href="#new" class="toolbar-button">new</a></li>
+                <li><a href="#show" class="toolbar-button">show</a></li>
+                <li><a href="#ask" class="toolbar-button">ask</a></li>
+                <li><a href="#jobs" class="toolbar-button">jobs</a></li>
             </ul>
         </nav>
         <nav class="install">
@@ -326,7 +338,7 @@ body[data-loading] main {
                         &bull; by <span data-simply-field="user">user</span> 
                         &bull; <span class="site">(<span data-simply-field="domain">domain</span>)</span>
                         <br>                        
-                        <a data-simply-field="comments_link" data-simply-content="fixed" class="comments-link">
+                        <a data-simply-field="id" data-simply-transformer="comments-link" data-simply-content="fixed" class="comments-link">
                             <input type="hidden" data-simply-field="id">
                             <span data-simply-field="comments_count">0</span> comments
                         </a> &bull; <span data-simply-field="points">0</span> points
@@ -339,14 +351,14 @@ body[data-loading] main {
                 <a target="_blank" rel="noopener" data-simply-field="item.url" data-simply-content="fixed"
                 ><h2 data-simply-field="item.title">Title</h2></a>
                 (<span data-simply-field="item.domain">domain</span>)
-                <br>
+                <div data-simply-field="item.content"></div>
                 <span data-simply-field="item.points">10</span> points 
                 &bull; by <span data-simply-field="item.user">user</span> 
                 <span data-simply-field="item.time_ago">time-ago</span>
 
-                <ul class="comments root" data-simply-list="item.comments">
+                <div class="comments root" data-simply-list="item.comments">
                     <template rel="comment"></template>
-                </ul>
+                </div>
             </div>
         </section>
     </main>
@@ -360,143 +372,195 @@ body[data-loading] main {
         </nav>
     </footer>
     <template id="comment">
-        <li class="comment">
-            <span data-simply-field="user" data-simply-action="user">user</span>
-            <span data-simply-field="time_ago">10</span> minutes ago
-            <div class="content" data-simply-field="content">Content</div>
-            <ul class="comments" data-simply-list="comments">
+        <details class="comment" open>
+            <summary>
+                <span data-simply-field="user" data-simply-action="user">user</span>
+                <span data-simply-field="time_ago">10</span> minutes ago
+                <div class="content" data-simply-field="content">Content</div>
+            </summary>
+            <div class="comments" data-simply-list="comments">
                 <template rel="comment"></template>
-            </ul>
+            </div>
         </li>
     </template>
-    <script src="https://cdn.simplyedit.io/1/simply-edit.js"
-        data-simply-storage="none"
-    ></script>
-    <script src="/js/simplyview/dist/simply.everything.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js');
-            });
+
+<script src="https://cdn.simplyedit.io/1/simply-edit.js"
+    data-simply-storage="none"
+>
+    /*
+     * SimplyEdit is a complete content management system (CMS) that runs in your browser.
+     * It also has a lot of logic on how to render data, which can be used standalone.
+     * To just use that, you must specify SimplyEdit that it has no storage engine,
+     * with the data-simply-storage="none" attribute.
+     * Read more about simplyedit at https://simplyedit.io/
+     */
+</script>
+
+<script>
+    /*
+     * Transformers are a way to transform data right before rendering it.
+     * This transformer is triggered when a HTML element with a
+     * 'data-simply-field' attribute and a
+     * 'data-simply-transformer="comments-link"' attribute is rendered.
+     * The input in this case is the news item id. Since the transformer
+     * is defined on an anchor '<a>', the output is set in the 'href'
+     * attribute of the anchor. 
+     * Read more about transformers here: 
+     * https://medium.com/simply-edit/introducing-transformers-1b1c6747c357
+     */
+    editor.transformers['comments-link'] = {
+        render: function(data) {
+            return '#comments/'+data;
         }
+    };
+</script>
 
-        simply.bind = false;
-        
-        var hnwapp = simply.app({
-            routes: {
-                '/comments/:id/': function(params) {
-                    hnwapp.actions.comments(params.id);
-                },
-                '/:section/:*': function(params) {
-                	hnwapp.actions.selectButton('/'+params.section+'/');
-                    var translate = {
-                        'top' : 'news',
-                        'new' : 'newest'
-                    };
-                    var section = translate[params.section] ? translate[params.section] : params.section;
-                    hnwapp.actions.list(section, parseInt(params.remainder));
-                },
-                '/': function(params) {
-                	hnwapp.actions.selectButton('/');
-                    hnwapp.actions.list('news');
-                }
+<script src="js/simplyview/dist/simply.everything.js">
+    /*
+     * simply.everything.js is a combination of all the components in simplyview.
+     * See the whole set at https://github.com/simplyedit/simplyview
+     */
+</script>
+
+<script>
+    /* This script section defines the UI of simply hnpwa (hackernews progressive web app)
+     * hnapi is the wrapper for the remote API to get all hackernews content
+     */
+
+    /*
+     * By setting the root for simply.route, all route matches will be prefixed with
+     * whatever directory the hnpwa app is installed in.
+     */
+    simply.route.init({
+        root: document.location.pathname
+    });
+
+    var hnpwa = simply.app({
+        /*
+         * routes are triggered on load and when following links
+         */
+         routes: {
+            '/#comments/:id/': function(params) {
+                hnpwa.actions.comments(params.id);
             },
-            commands: {
-                install: function(el) {
-                    document.querySelector('nav.install').style.display = '';
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice
-                    .then(function(choiceResult) {
-                        deferredPrompt = null;
-                    });
-                },
-                close: function(el) {
-                    document.querySelector('nav.install').style.display = '';
-                    localStorage.setItem('installClosed', 'true');
-                }
+            '/#:section/:*': function(params) {
+            	hnpwa.actions.selectButton('#'+params.section);
+                var translate = {
+                    'top' : 'news',
+                    'new' : 'newest'
+                };
+                var section = translate[params.section] ? translate[params.section] : params.section;
+                hnpwa.actions.list(section, parseInt(params.remainder));
             },
-            actions: {
-                comments: function(id) {
-                    document.body.setAttribute('data-loading','');
-                    document.body.removeAttribute('data-paging');
-                    return hnapi.get(id)
-                        .then(function(data) {
-                            hnwapp.view.item = data;
-                            document.body.removeAttribute('data-loading');
-                            return hnwapp.actions['simply-select'](document.getElementById('comments'), 'sections');
-                        });
-                },
-                list: function(section, page) {
-                    document.body.setAttribute('data-loading','');
-                    document.body.setAttribute('data-paging','');
-                    if (!page) {
-                        page = 1;
-                    }
-                    hnwapp.view.pager = {
-                        prev: (page>2 ? '/'+section+'/'+(page-1) : '/'+section+'/'),
-                        current: page,
-                        next: '/'+section+'/'+(page+1)
-                    };
-                    return hnapi.list(section, page)
-                        .then(function(data) {
-                            hnwapp.view.items = data;
-                            document.body.removeAttribute('data-loading');
-                            hnwapp.actions['simply-select'](document.getElementById('news'), 'sections');
-                            return data;
-                        });
-                },
-                selectButton: function(href) {
-                	if (href=='/news/') {
-                		href='/';
-                	}
-                  	document.body.querySelector('.active.toolbar-button').classList.remove('active');
-                	document.body.querySelector('.toolbar-button[href="'+href+'"]').classList.add('active');
-				},
+            '/:*': function(params) {
+            	hnpwa.actions.selectButton('#news');
+                hnpwa.actions.list('news');
             }
-        });
+        },
 
-        var hnapi = (function() {
-            var baseURL = 'https://api.hackerwebapp.com/';
-            return {
-                list: function(section, page) {
-                    if (!page) {
-                        page = 1;
-                    }
-                    return fetch(baseURL + section + '?page='+page )
-                    .then(function(response) {
-                        return response.json();
-                    })
+        /*
+         * Commands are triggered on click on buttons with data-simply-command attributes
+         * Here we're only using them to show and handle the installation prompt for a PWA
+         */
+        commands: {
+            install: function(el) {
+                document.querySelector('nav.install').style.display = '';
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice
+                .then(function(choiceResult) {
+                    deferredPrompt = null;
+                });
+            },
+            close: function(el) {
+                document.querySelector('nav.install').style.display = '';
+                localStorage.setItem('installClosed', 'true');
+            }
+        },
+        /*
+         * actions are the API of the UI, used by routes and commands
+         */
+        actions: {
+            comments: function(id) {
+                document.body.setAttribute('data-loading','');
+                document.body.removeAttribute('data-paging');
+                return hnapi.item[id].get()
                     .then(function(data) {
-                        data.forEach(function(entry,index) {
-                            entry.comments_link = '/comments/'+entry.id+'/';
-                        });
+                        hnpwa.view.item = data;
+                        document.body.removeAttribute('data-loading');
+                        return hnpwa.actions['simply-select'](document.getElementById('comments'), 'sections');
+                    });
+            },
+            list: function(section, page) {
+                document.body.setAttribute('data-loading','');
+                document.body.setAttribute('data-paging','');
+                if (!page) {
+                    page = 1;
+                }
+                hnpwa.view.pager = {
+                    prev: (page>2 ? '#'+section+'/'+(page-1) : '#'+section),
+                    current: page,
+                    next: '#'+section+'/'+(page+1)
+                };
+                return hnapi[section]({ page: page})
+                    .then(function(data) {
+                        hnpwa.view.items = data;
+                        document.body.removeAttribute('data-loading');
+                        hnpwa.actions['simply-select'](document.getElementById('news'), 'sections');
                         return data;
                     });
-                },
-                get: function(id) {
-                    return fetch(baseURL + 'item/' + id)
-                    .then(function(response) {
-                        return response.json();
-                    });
-                }
-            };
-        })();
+            },
+            selectButton: function(href) {
+              	document.body.querySelector('.active.toolbar-button').classList.remove('active');
+            	document.body.querySelector('.toolbar-button[href="'+href+'"]').classList.add('active');
+			},
+        },
 
-        document.addEventListener('simply-data-changed', function() {
-            window.scrollTo(0,0);
+        /*
+         * The view contains all the data you want to display using data-simply-field and data-simply-list
+         * You don't need to predefine them like this. I've done so here to document it more clearly.
+         */
+        view: {
+            pager: {},
+            items: [],
+            item: {}
+        }
+
+    });
+
+</script>
+
+<script>
+    /*
+     * hnapi is a proxy for the hackernews api from hackerwebapp.com
+     * Any property access is translated to a directory on the base url
+     * Any method access is translated to a get() on that url
+     */
+    var hnapi = simply.api.proxy({
+        baseURL: 'https://api.hackerwebapp.com/'
+    });
+
+</script>
+
+<script>
+    /*
+     * This section deals with installing the serviceworker, if supported
+     */
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js');
         });
+    }
 
-        var deferredPrompt;
+    var deferredPrompt;
 
-        window.addEventListener('beforeinstallprompt', function(evt) {
-            evt.preventDefault();
-            deferredPrompt = evt;
-            if (!localStorage.getItem('installClosed')) {
-                document.querySelector('nav.install').style.display = 'block';
-            }
-        });
+    window.addEventListener('beforeinstallprompt', function(evt) {
+        evt.preventDefault();
+        deferredPrompt = evt;
+        if (!localStorage.getItem('installClosed')) {
+            document.querySelector('nav.install').style.display = 'block';
+        }
+    });
 
-    </script>
+</script>
 </body>
 </html>
-

@@ -5,14 +5,12 @@ tags: SimplyView
 
 This tutorial explains how to build a complete progressive web application with SimplyEdit in just 200 lines of HTML and javascript.
 
-:::success
-Things you'll learn:
-- Single Page Application Routing
-- Connecting to a REST API
-- Rendering nested data recursively 
-- Using SimplyEdit Transformers to customize the rendering of data
-- How to change state with buttons and commands
-:::
+> Things you'll learn:
+> - Single Page Application Routing
+> - Connecting to a REST API
+> - Rendering nested data recursively 
+> - Using SimplyEdit Transformers to customize the rendering of data
+> - How to change state with buttons and commands
 
 Hackernews is the common name for the website https://news.ycombinator.com/. It is a hub for developers and technology enthousiasts. It is also the subject for the https://hnpwa.com/ website.
 
@@ -28,7 +26,7 @@ The goal of the HNPWA app is to show news items and comments from hackernews. We
 
 First make a simple webpage with the needed libraries:
 
-```htmlembedded=
+```html
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
@@ -49,7 +47,7 @@ It is good practice to define the language and character set in any webpage. The
 
 SimplyView provides a simple application skeleton. Set it up like this:
 
-```htmlembedded=
+```html
 <script>
     const hnpwa = simply.app({
     });
@@ -58,7 +56,7 @@ SimplyView provides a simple application skeleton. Set it up like this:
 
 To get it do anything, add a route:
 
-```htmlembedded=
+```htmlembedded
 <script>
     const hnpwa = simply.app({
         routes: {

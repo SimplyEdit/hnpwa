@@ -111,12 +111,16 @@ section.simply-selected {
     line-height: 40px;
     text-align: center;
 }
-
 /* navbar */
 .navbar {
     background-color: var(--navbar-bg-color);
     color: var(--navbar-color);
     box-shadow: 0 0 8px #888;
+    padding-left: 60px;
+}
+.navbar-brand {
+    position: absolute;
+    color: white;
 }
 .navbar a {
     color: var(--navbar-color);
@@ -129,9 +133,6 @@ section.simply-selected {
     border: 2px solid white;
     text-align: center;
     margin: 10px 16px;
-}
-.navbar .navbar-brand {
-    flex: 0;
 }
 .navbar a.active {
     position: relative;
@@ -175,7 +176,7 @@ body[data-paging] footer {
     display: block;
 }
 .pager a.toolbar-button {
-	position: relative;
+    position: relative;
     padding-top: 50px;
     height: 50px;
     overflow: hidden;
@@ -311,15 +312,15 @@ body[data-loading] main {
 </head>
 <body data-paging data-loading>
     <header>
-        <nav class="navbar">
-            <ul class="toolbar">
-                <li class="navbar-brand"><a class="navbar-logo">Y</a></li>
-                <li><a href="#news" class="active toolbar-button">top</a></li>
-                <li><a href="#newest" class="toolbar-button">new</a></li>
-                <li><a href="#show" class="toolbar-button">show</a></li>
-                <li><a href="#ask" class="toolbar-button">ask</a></li>
-                <li><a href="#jobs" class="toolbar-button">jobs</a></li>
-            </ul>
+        <nav class="navbar-brand"><a class="navbar-logo">Y</a></nav>
+        <nav class="navbar" data-simply-field="section" data-simply-content="template" data-simply-default-template="section">
+            <template data-simply-template="section">
+                <ul class="toolbar" data-simply-list="menu" data-simply-entry="item">
+                    <template>
+                        <li><a class="toolbar-button" data-simply-field="item" data-simply-transformer="section">item</a></li>
+                    </template>
+                </ul>
+            </template>
         </nav>
         <nav class="install">
             <button class="install" data-simply-command="install">Install on Homescreen</button>
@@ -413,6 +414,24 @@ body[data-loading] main {
             return '#comments/'+data;
         }
     };
+    editor.transformers.section = {
+        render: function(data) {
+            this.originalValue = data;
+            var className = "toolbar-button";
+            if (hnpwa.view.section == data) {
+                var className = "active toolbar-button";
+            }
+            return {
+                href: '#'+data,
+                innerHTML: data,
+                "class": className
+            }
+        },
+        extract: function() {
+            return this.originalValue;
+        }
+    }
+
 </script>
 
 <script src="js/simplyview/dist/simply.everything.js">
@@ -440,15 +459,13 @@ body[data-loading] main {
          * routes are triggered on load and when following links
          */
          routes: {
-            '/#comments/:id/': function(params) {
+            '#comments/:id/': function(params) {
                 hnpwa.actions.comments(params.id);
             },
-            '/#:section/:*': function(params) {
-            	hnpwa.actions.selectButton('#'+params.section);
+            '#:section/:*': function(params) {
                 hnpwa.actions.list(params.section, parseInt(params.remainder));
             },
-            '/:*': function(params) {
-            	hnpwa.actions.selectButton('#news');
+            ':*': function(params) {
                 hnpwa.actions.list('news');
             }
         },
@@ -510,10 +527,6 @@ body[data-loading] main {
                         }
                         return data;
                     });
-            },
-            selectButton: function(href) {
-              	document.body.querySelector('.active.toolbar-button').classList.remove('active');
-            	document.body.querySelector('.toolbar-button[href="'+href+'"]').classList.add('active');
 			},
         },
 
@@ -525,7 +538,8 @@ body[data-loading] main {
             pager: {},
             items: [],
             item: {},
-            section: ''
+            section: '',
+            menu: [ 'news', 'newest', 'show', 'ask', 'jobs' ]
         }
 
     });

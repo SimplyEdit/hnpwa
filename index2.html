@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<title>Hackernews PWA - SimplyEdit</title>
+<link rel="icon" sizes="192x192" type="image/png" href="/camil_192x192.png">
+<link rel="icon" sizes="128x128" type="image/png" href="/camil_128x128.png">
+<link rel="icon" sizes="32x32" type="image/png" href="/camil_32x32.png">
+<link rel="icon" sizes="16x16" type="image/png" href="/camil_16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="preload" href="https://cdn.simplyedit.io/1/1.26/simply-edit.js" as="script">
+<link rel="preload" href="https://cdn.simplyedit.io/1/1.26/databind.js?v=1.26" as="script">
+<link rel="preload" href="/js/simplyview/dist/simply.everything.js" as="script">
+<link rel="preload" href="https://api.hackerwebapp.com/news?page=1" as="fetch" crossorigin="anonymous">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#4700ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="A Hackernews PWA made with SimplyView">
+<link rel="stylesheet" href="styles.css">
+<header>
+    <nav class="navbar-brand"><a class="navbar-logo">Y</a></nav>
+    <nav class="navbar">
+        <ul class="toolbar">
+            <li><a data-simply-field="menu.news" href="#news/" class="toolbar-button active">top</a></li>
+            <li><a data-simply-field="menu.newest" href="#newest/" class="toolbar-button">new</a></li>
+            <li><a data-simply-field="menu.show" href="#show/" class="toolbar-button">show</a></li>
+            <li><a data-simply-field="menu.ask" href="#ask/" class="toolbar-button">ask</a></li>
+            <li><a data-simply-field="menu.jobs" href="#jobs/" class="toolbar-button">jobs</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <section data-simply-field="show" data-simply-content="template">
+        <template data-simply-template="items">
+            <ul class="items root" data-simply-list="items" data-simply-activate="updateScroll">
+            <template>
+                <li class="item">
+                    <a target="_blank" rel="noopener" 
+                       data-simply-field="id" 
+                       data-simply-transformer="comment_link"
+                       data-simply-content="fixed"
+                    ><h2 data-simply-field="title">title</h2></a>
+                    <br>
+                    <span data-simply-field="time_ago">time-ago</span> 
+                    &bull; by <span data-simply-field="user">user</span> 
+                    &bull; <span class="site">(<span 
+                        data-simply-field="domain">domain</span>)</span>
+                    <br>                        
+                    <a data-simply-field="id" 
+                       data-simply-transformer="comment_link" 
+                       data-simply-content="fixed" class="comments-link"
+                    >
+                        <input type="hidden" data-simply-field="id">
+                        <span data-simply-field="comments_count">0</span> comments
+                    </a>
+                    &bull; <span data-simply-field="points">0</span> points
+                </li>
+            </template>
+            </ul>
+        </template>
+        <template data-simply-template="item">
+            <div class="item" data-simply-activate="updateScroll">
+                <a target="_blank" rel="noopener" 
+                   data-simply-field="item.url" data-simply-content="fixed"
+                ><h2 data-simply-field="item.title">Title</h2></a>
+                (<span data-simply-field="item.domain">domain</span>)
+                <div data-simply-field="item.content"></div>
+                <span data-simply-field="item.points">10</span> points 
+                &bull; by <span data-simply-field="item.user">user</span> 
+                <span data-simply-field="item.time_ago">time-ago</span>
+            </div>
+            <div class="comments root" data-simply-list="item.comments">
+                <template rel="comment"></template>
+            </div>
+        </template>
+    </section>
+</main>
+<footer>
+    <nav class="paging">
+        <ul class="toolbar">
+            <li class="paging-prev">
+                <a href="#news/" data-simply-field="paging.previous" class="toolbar-button disabled"
+                   >previous</a>
+            </li>
+            <li class="paging-current" data-simply-field="paging.page">1</li>
+            <li class="paging-next">
+                <a href="#news/2/" data-simply-field="paging.next" class="toolbar-button"
+                   >next</a>
+            </li>
+        </ul>
+    </nav>
+</footer>
+
+<template id="comment">
+    <details class="comment" open>
+        <summary>
+            <span data-simply-field="user" data-simply-action="user">user</span>
+            <span data-simply-field="time_ago">10</span> minutes ago
+            <div class="content" data-simply-field="content">Content</div>
+        </summary>
+        <div class="comments" data-simply-list="comments">
+            <template rel="comment"></template>
+        </div>
+    </details>
+</template>
+<script src="https://cdn.simplyedit.io/1/simply-edit.js"
+    data-simply-storage="none"
+></script>
+<script xsrc="https://unpkg.com/simplyview@2.0.0/dist/simply.everything.js"></script>
+<script src="//localhost/simplyview/dist/simply.everything.js"></script>
+<script>
+    editor.transformers.comment_link = {
+        render: function(data) {
+            this.originalValue = data;
+            return '#comments/'+data;
+        },
+        extract: function() {
+            return this.originalValue;
+        }
+    };
+
+    simply.route.init({
+        root: document.location.pathname
+    });
+
+
+    var hnpwa = simply.app({
+        routes: {
+            '#comments/:id': function(params) {
+                hnpwa.actions.item(params.id);
+            },
+            '#:section/:page': function(params) {
+                hnpwa.actions.list(params.section, parseInt(params.page) || 1);
+            },
+            '#:section': function(params) {
+                hnpwa.actions.list(params.section, 1);
+            },
+            ':*': function(params) {
+                hnpwa.actions.list('news', 1);
+            }
+        },
+        actions: {
+            item: function(id) {
+                document.body.dataset.paging="off";
+                return hnapi.item[id]()
+                .then(result => {
+                    hnpwa.view.item = result;
+                    hnpwa.view.show = 'item';
+                    hnpwa.view.section = 'news';
+                });
+            },
+            list: function(section, page) {
+                hnpwa.actions.select(section);
+            	return hnapi[section]({ page: page })
+                .then(result => {
+                    hnpwa.view.items = result;
+                    hnpwa.view.show = 'items';
+                    hnpwa.view.section = section;
+                    hnpwa.actions.updatePaging(section, page);
+                    document.body.dataset.paging="on";
+                });
+            },
+            select: function(section) {
+                if (!hnpwa.view.menu) { return }
+                hnpwa.view.menu[hnpwa.view.section]["class"] = "toolbar-button";
+                hnpwa.view.menu[section]["class"] = "active toolbar-button";
+                hnpwa.view.section = section;
+            },
+            updatePaging: function(section, page) {
+                if (!hnpwa.view.paging) { return }
+                let baseUrl = '#'+section+'/';
+                if ( page > 1 ) {
+                    hnpwa.view.paging.previous.href = baseUrl + (page-1) + '/';
+                    hnpwa.view.paging.previous.class = "toolbar-button";
+                } else {
+                    hnpwa.view.paging.previous.href = baseUrl;
+                    hnpwa.view.paging.previous.class = "toolbar-button disabled";
+                }
+                hnpwa.view.paging.page = page;
+                hnpwa.view.paging.next.href = baseUrl + (page+1) + '/';
+            }
+        },
+        view: {
+            items: [],
+            item: {},
+            show: 'items',
+            section: 'news'
+        }
+    });
+
+    const hnapi = simply.api.proxy({
+        baseURL: 'https://api.hackerwebapp.com/',
+        handlers: {
+            fetch: (verb, params, options) => {
+                document.body.dataset.loading="loading";
+                return simply.api.fetch(verb, params, options)
+                .then(response => {
+                    delete document.body.dataset.loading;
+                    return response;
+                });
+            }
+        }
+    });
+
+    document.querySelector('main').addEventListener('scroll', () => {
+        history.replaceState({
+            scrollY: document.querySelector('main').scrollTop
+        },'');
+    });
+
+    function updateScroll() {
+        let scrollY = history.state.scrollY || 0;
+        document.querySelector('main').scrollTop = scrollY;
+    };
+
+    simply.activate.addListener('updateScroll', updateScroll);
+    window.addEventListener('popstate', updateScroll);
+
+    simply.route.addListener('goto', ':*', function(params) {
+        document.querySelector('main').scrollTop = 0;
+    });
+</script>

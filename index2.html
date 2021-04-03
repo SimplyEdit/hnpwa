@@ -28,6 +28,10 @@
             <li><a data-simply-field="menu.jobs" href="#jobs/" class="toolbar-button">jobs</a></li>
         </ul>
     </nav>
+    <nav class="install">
+        <button class="install" data-simply-command="install">Install on Homescreen</button>
+        <button class="close" data-simply-command="close">&times;</button>
+    </nav>
 </header>
 <main>
     <section data-simply-field="show" data-simply-content="template">
@@ -139,6 +143,24 @@
                 hnpwa.actions.list('news', 1);
             }
         },
+        /*
+         * Commands are triggered on click on buttons with data-simply-command attributes
+         * Here we're only using them to show and handle the installation prompt for a PWA
+         */
+        commands: {
+            install: function(el) {
+                document.querySelector('nav.install').style.display = '';
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice
+                .then(function(choiceResult) {
+                    deferredPrompt = null;
+                });
+            },
+            close: function(el) {
+                document.querySelector('nav.install').style.display = '';
+                localStorage.setItem('installClosed', 'true');
+            }
+        },
         actions: {
             item: function(id) {
                 document.body.dataset.paging="off";
@@ -209,7 +231,7 @@
     });
 
     function updateScroll() {
-        let scrollY = history.state.scrollY || 0;
+        let scrollY = (history.state && history.state.scrollY) || 0;
         document.querySelector('main').scrollTop = scrollY;
     };
 
@@ -219,4 +241,21 @@
     simply.route.addListener('goto', ':*', function(params) {
         document.querySelector('main').scrollTop = 0;
     });
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js');
+        });
+    }
+
+    var deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', function(evt) {
+        evt.preventDefault();
+        deferredPrompt = evt;
+        if (!localStorage.getItem('installClosed')) {
+            document.querySelector('nav.install').style.display = 'block';
+        }
+    });
+
 </script>

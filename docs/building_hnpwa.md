@@ -56,7 +56,7 @@ SimplyView provides a simple application skeleton. Set it up like this:
 
 To get it do anything, add a route:
 
-```htmlembedded
+```html
 <script>
     const hnpwa = simply.app({
         routes: {
@@ -74,7 +74,7 @@ Great, that works. The next part explains how to connect to the API and show a l
 
 SimplyView has a library -- simply.api -- to simplify talking to a remote API, like the one at https://api.hackerwebapp.com/. In most cases all you need to do is to set it up like this:
 
-```htmlembedded=
+```html
 <script>
     var hnapi = simply.api.proxy({
         baseURL: 'https://api.hackerwebapp.com/'
@@ -84,7 +84,7 @@ SimplyView has a library -- simply.api -- to simplify talking to a remote API, l
 
 The hackerwebapp team has a documentation page at https://github.com/cheeaun/node-hnapi/wiki/API-Documentation. This lists a `/news` path that returns a list of the 30 most recent popular news items. With the new `hnapi` the code looks like this:
 
-```htmlembedded=
+```html
 <script>
     var hnpwa = simply.app({
         routes: {
@@ -110,7 +110,7 @@ You can also do POST requests, or any other HTTP method. You can  handle XML res
 
 The next step is showing the news items. News items contain a number of properties. Here is the JSON for a news item from the https://api.hackerwebapp.com/ site.
 
-```javascript=
+```json
 {
     "id": 26452504,
     "title": "Reprojecting the Perseverance landing footage onto satellite imagery",
@@ -127,7 +127,7 @@ The next step is showing the news items. News items contain a number of properti
 
 There is now a list of news items in the base route. So lets create a list template to display them:
 
-```htmlembedded=
+```html
 <body>
 <ul data-simply-list="items">
 <template>
@@ -140,7 +140,7 @@ There is now a list of news items in the base route. So lets create a list templ
 
 And render the items:
 
-```htmlembedded=
+```html
 <script>
     var hnpwa = simply.app({
         routes: {
@@ -159,9 +159,7 @@ And render the items:
 ```
 The `view`section of simply.app links data to SimplyEdits `data-simply-field`and `data-simply-list`using two-way databinding. This means that `hnpwa.view.items`is automatically rendered using the template linked to `data-simply-list="items"`. Whenever you change `view.items`, SimplyEdit updates the HTML automatically.
 
-:::info
-:bulb: You should not initialize a view variable as `null`. Always use a value -- a string, int, array or object. This is because SimplyEdit cannot monitor `null` for changes.
-:::
+> :bulb: You should not initialize a view variable as `null`. Always use a value -- a string, int, array or object. This is because SimplyEdit cannot monitor `null` for changes.
 
 You can checkout the results so far in this codepen: https://codepen.io/poef/pen/abBMpKN.
 
@@ -171,7 +169,7 @@ The best reason to read Hackernews is to read the comments. So let's add a link 
 
 According to the api.hackerwebapp.com documentation, the url: `https://api.hackerwebapp.com/item/:id` returns all the data for a news item, including all comments. The route that handles this looks like this:
 
-```javascript=
+```javascript
     '/#comments/:id': function(params) {
         hnapi.item[params.id]()
         .then(result => {
@@ -184,7 +182,7 @@ Then add a link like this to the news items. There is no such link in the JSON f
 
 A simple -- but wrong -- way to fix this is to add it in the news item data, e.g.:
 
-```javascript=
+```javascript
     '/:*': function(params) {
         hnapi.news()
         .then(result => {
@@ -199,7 +197,7 @@ A simple -- but wrong -- way to fix this is to add it in the news item data, e.g
 
 In general, you should not change the data because of the way you want to render it. SimplyEdit provides a better alternative: transformers.
 
-```htmlembedded=
+```html
 <script>
     editor.transformers.comment_link = {
         render: function(data) {
@@ -211,7 +209,7 @@ In general, you should not change the data because of the way you want to render
 
 And now add the link to the HTML:
 
-```htmlembedded=
+```html
 <ul data-simply-list="items">
 <template>
     <li>
@@ -231,7 +229,7 @@ Normally a field on an anchor also sets the innerHTML. But here the innerHTML is
 
 Now let's show the item and comments. You could add an extra div and use a class to switch between the two, like this:
 
-```htmlembedded=
+```html
 <section class="items selected">
     <ul data-simply-list="items">
     <template>
@@ -254,7 +252,7 @@ Now let's show the item and comments. You could add an extra div and use a class
 
 And with a bit of CSS, you can switch between which part is visible. But often it is simpler to use SimplyEdit's template feature to alter the DOM based on a variable:
 
-```htmlembedded=
+```html
 <section data-simply-field="show" data-simply-content="template">
     <template data-simply-template="items">
         <ul data-simply-list="items">
@@ -277,13 +275,11 @@ And with a bit of CSS, you can switch between which part is visible. But often i
 </section>
 ```
 
-:::info
-:bulb: The item title is shown with the field `item.title`, not `title`, like in the news items list. Only in templates used in a `data-simply-list` are the `data-simply-field` values automatically scoped to the each item in the list. Outside a list, all fields are scoped to the view root.
-:::
+> :bulb: The item title is shown with the field `item.title`, not `title`, like in the news items list. Only in templates used in a `data-simply-list` are the `data-simply-field` values automatically scoped to the each item in the list. Outside a list, all fields are scoped to the view root.
 
 And now just set the `hnpwa.view.show` variable to select which template is shown:
 
-```javascript=
+```javascript
     '/#comments/:id': function(params) {
         hnapi.item[params.id]()
         .then(result => {
@@ -295,7 +291,7 @@ And now just set the `hnpwa.view.show` variable to select which template is show
 
 You must also add this to the default route, so the `items` template is selected. The whole app now becomes:
 
-```htmlembedded=
+```html
 <script>
     var hnpwa = simply.app({
         routes: {
@@ -329,7 +325,7 @@ Check out the full code in this codepen: https://codepen.io/poef/pen/YzpmZRZ
 
 The comments in hackernews are nested. You can comment directly on a news item, or on a comment from someone else. This means that there is a tree structure of data, like this:
 
-```json=
+```json
 {
     "comments": [
         {
@@ -351,7 +347,7 @@ The comments in hackernews are nested. You can comment directly on a news item, 
 
 If you have a list of data, you can render these use `data-simply-list` and a template:
 
-```htmlembedded=
+```html
 <ul data-simply-list="item.comments">
     <template>
         <li>
@@ -365,7 +361,7 @@ If you have a list of data, you can render these use `data-simply-list` and a te
 
 But if you want to show a nested list of comments, you would need to repeat the template for each level, e.g:
 
-```htmlembedded=
+```html
 <ul data-simply-list="comments">
     <template>
         <li>
@@ -400,7 +396,7 @@ That is clearly not ideal. There is no set limit to how many levels of comments 
 
 Instead SimplyEdit supports named templates, which can refer to themselves, like this:
 
-```htmlembedded=
+```html
 <ul class="comments root" data-simply-list="comments">
     <template rel="comment"></template>
 </ul>
@@ -415,7 +411,7 @@ Instead SimplyEdit supports named templates, which can refer to themselves, like
 
 No you can add a comments subtree to a comment, simply by referring to its own template, like this:
 
-```htmlembedded=
+```html
 <ul class="comments root" data-simply-list="item.comments">
     <template rel="comment"></template>
 </ul>
@@ -433,7 +429,7 @@ No you can add a comments subtree to a comment, simply by referring to its own t
 
 Because comment threads can go off topic quickly, you might want to skip some comments and their threads. You could build a custom collapse thread feature in javascript. But why not use the [HTML details/summary elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details):
 
-```htmlembedded=
+```html
 <div class="comments root" data-simply-list="item.comments">
     <template rel="comment"></template>
 </div>
@@ -467,7 +463,7 @@ The category `news` is the main category, which contains all the rest, but order
 
 These categories are supported by the API. Let's add a menubar to switch between them:
 
-```htmlembedded=
+```html
 <header>
     <nav class="navbar">
         <ul class="toolbar">
@@ -485,7 +481,7 @@ The menu items are defined as anchors (`<a href="#..">`) so that the URL changes
 
 Now add the routes to the hnpwa app:
 
-```htmlembedded=
+```html
 <script>
     var hnpwa = simply.app({
         routes: {
@@ -515,15 +511,13 @@ Now add the routes to the hnpwa app:
 </script>
  ```
  
-:::info
-:bulb: the order in which you add the routes is important. `simply.route` matches the routes in the order in which you define them. So the first route that matches will be called. If you add the new route (`/#section`) after the `/:*` route, it won't get called, because it would be matched earlier.
-:::
+> :bulb: the order in which you add the routes is important. `simply.route` matches the routes in the order in which you define them. So the first route that matches will be called. If you add the new route (`/#section`) after the `/:*` route, it won't get called, because it would be matched earlier.
 
 As you can see, the original `/:*` route is just a special case of the new section route. So I could extract the code for both and add a single method for them. This happens often enough, and for both commands and routes, that SimplyView has a special tool for it, called `simply.actions`.
 
 Using actions, I can rewrite the app as follows:
 
-```htmlembedded=
+```html
 <script>
     var hnpwa = simply.app({
         routes: {
@@ -559,16 +553,13 @@ Using actions, I can rewrite the app as follows:
 
 While I was doing that, I've also added an `item` action. This keeps the routes simple and small, which I've found is a good idea in general.
 
-:::info
-:bulb: Routes should only be concerned with parsing the parameters from the url, pathname, hash and/or querystring and then calling an action to do the real work.
-
-Actions then can contain the real logic of your app, changing state and calling backend API's and such. They are almost the 'backend' of your frontend. They don't know about HTML structure or query string formats, they just operate on the (view) data and API.
-:::
-
+> :bulb: Routes should only be concerned with parsing the parameters from the url, pathname, hash and/or querystring and then calling an action to do the real work.
+> 
+> Actions then can contain the real logic of your app, changing state and calling backend API's and such. They are almost the 'backend' of your frontend. They don't know about HTML structure or query string formats, they just operate on the (view) data and API.
 
 The menu items need to be linked to variables in the `view`. Then you can change the active status by changing the class property on each menu item. A simple way to do this is by defining them in the HTML, like this:
 
-```htmlembedded=
+```html
 <header>
     <nav class="navbar">
         <ul class="toolbar">
@@ -596,7 +587,7 @@ Because of the two-way databinding, the view automatically gains a `view.menu`en
 
 Each item is filled with data from the HTML, like this:
 
-```javascript=
+```javascript
 menu: {
     news: {
         href: "#news",
@@ -609,7 +600,7 @@ menu: {
 
 While this code works, the active menu item doesn't change when you click another item. To do that, add an action to change the classes on the correct `view.menu` items:
 
-```javascript=
+```javascript
 hnpwa.actions.select = function(section) {
     if (!hnpwa.view.menu) {
         return;
@@ -634,7 +625,7 @@ Next it stores the selected section for the next menu change.
 
 Finally, the `list` action must call the `select` action:
 
-```javascript=
+```javascript
 list: function(section) {
     hnpwa.actions.select(section);
     return hnapi[section]()
@@ -657,13 +648,13 @@ https://api.hackerwebapp.com/news?page=2
 
 With simply.api you can call this URL like this:
 
-```javascript=
+```javascript
 hnapi.news({ page: 2 });
 ```
 
 To add this to the list action, the code needs a `page` parameter:
 
-```javascript=
+```javascript
 list: function(section, page) {
     hnpwa.actions.select(section);
     hnpwa.view.page = 0;
@@ -678,7 +669,7 @@ list: function(section, page) {
 
 A footer with paging controls allows you to go to the next or previous page:
 
-```htmlembedded=
+```html
 <footer>
     <nav class="paging">
         <ul class="toolbar">
@@ -700,7 +691,7 @@ A footer with paging controls allows you to go to the next or previous page:
 
 The `paging-prev` and `paging-next` transformers calculate the previous and next page number:
 
-```javascript=
+```javascript
 editor.transformers['paging-prev'] = {
     render: function(data) {
         this.originalValue = data;
@@ -727,7 +718,7 @@ editor.transformers['paging-next'] = {
 
 With the previous and next links automatically calculated, the routes must accept the page parameter as well:
 
-```javascript=
+```javascript
 routes: {
     '/#comments/:id': function(params) {
         hnpwa.actions.item(params.id);
@@ -744,13 +735,11 @@ routes: {
 }
 ```
 
-:::info
-:bulb: Because the routes here are based on hash fragments, it is easier to add the page variable to that. If you are building normal URL's without the hash tag, you could also add the page variable to the query part of the URL, like this: `?page=1`. Note that you cannot match the query variables in a route.
-:::
+> :bulb: Because the routes here are based on hash fragments, it is easier to add the page variable to that. If you are building normal URL's without the hash tag, you could also add the page variable to the query part of the URL, like this: `?page=1`. Note that you cannot match the query variables in a route.
 
 The list action is now called whenever you press one of the menu items, or when you press a previous or next page button. There is one line in the `list` action that needs more explaining:
 
-```javascript=
+```javascript
 hnpwa.view.page = 0;
 ```
 
@@ -760,7 +749,7 @@ This leaves two issues: the comments view must not show paging links, as they ar
 
 A simple way to hide the footer is to just set `display: none` on it in CSS. By tying this CSS to an attribute on the body, the frontend HTML and CSS are still free to implement this in any way. A data attribute has no effect on rendering by default.
 
-```css=
+```css
 nav.paging {
     display: none;
 }
@@ -769,7 +758,7 @@ body[data-paging="on"] nav.paging {
 }
 ```
 
-```javascript=
+```javascript
 item: function(id) {
     return hnapi.item[id]()
     .then(result => {
@@ -791,7 +780,7 @@ list: function(section, page) {
 ```
 The final issue is with potential negative page numbers in the previous button. If you are on page 1, the previous button should be disabled. So the `paging-prev` transformer must handle this case:
 
-```javascript=
+```javascript
 editor.transformers['paging-prev'] = {
     render: function(data) {
         this.originalValue = data;
@@ -826,7 +815,7 @@ This looks like a tall order, but actually it's not that hard. As the name sugge
 
 So first create a javascript file called `service-worker.js`:
 
-```javascript=
+```javascript
 import { registerRoute } from 'workbox-routing';
 import {
     NetworkFirst,
@@ -869,7 +858,7 @@ This is an almost verbatim copy of the first service worker example on the getti
 
 Then I need to make the app installable. 
 
-```javascript=
+```javascript
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('service-worker.js');
@@ -881,7 +870,7 @@ Again, a copy from the Workbox getting started page. This is enough to get the s
 
 However, the next step is to support the installation process. A webbrowser will allow a PWA to be installed as a PWA on your phone, if you check all the boxes and the moon is in the correct position. It will signal this by sending an event. Only then can the app influence the installation process. By showing an installation button for example.
 
-```javascript=
+```javascript
 var deferredPrompt;
 
 window.addEventListener('beforeinstallprompt', function(evt) {
@@ -897,7 +886,7 @@ This piece of code stops the default PWA installation prompt and stores the even
 
 Just like before, I show a previously hidden part of the app by changing a data attribute on the html body.
 
-```htmlembedded=
+```html
 <nav class="install">
     <button class="install" data-simply-command="install">Install on Homescreen</button>
     <button class="close" data-simply-command="close">&times;</button>
@@ -906,7 +895,7 @@ Just like before, I show a previously hidden part of the app by changing a data 
 
 This is an extra toolbar that only shows up if the browser is ready to install the PWA to your 'Homescreen'. Since this is an action that you cannot trigger untill after the browser allows it, there is no use for a link or route here. So I've added commands. One to start the install and one to close the installation toolbar. These must be added to the `hnpwa` app as well:
 
-```javascript=
+```javascript
 var hnpwa = simply.app({
     commands: {
         install: function(el) {
@@ -931,17 +920,3 @@ It is not a good idea to prompt people to install your app more than once. So I'
 And that is all. There are quite a number of details to add, but these aren't specific to SimplyEdit or SimplyView, and, quite frankly, a bit boring. Check out the [github page for this HNPWA app](https://github.com/simplyedit/hnpwa/) for the remaining details. There is no codepen for this part, as there is no way to create a service worker or a PWA in general on codepen.
 
 [@TODO: Add manifest.json stuff here]
-
-:::info
-:warning: There is one detail left out of the code so far, so that it will work on codepen. But you do want to add it for any app with routing that you want to run from a folder or subdirectory of a website:
-
-```javascript=
-simply.route.init({
-    root: document.location.pathname
-});
-```
-
-By adding this, you make sure that clicking on a link won't change the base URL of your application. Instead it will add the hash to this root URL.
-
-Codepen does some URL rewrite trickery of its own, and that interferes with the routing done by simply.route, so I've left it out in these examples.
-:::

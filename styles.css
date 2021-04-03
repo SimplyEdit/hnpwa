@@ -3,6 +3,9 @@
     --navbar-bg-color: #4700ff;
     --dot-color: #4700ff;
     --transparent-color: rgba(0,0,0,0);
+    --install-bg-color: #CCC;
+    --install-button-bg-color: #4700ff;
+    --install-button-color: #fff;
 }
 html, body {
     height: 100%;
@@ -233,4 +236,28 @@ main {
 body[data-loading] main {
     opacity: 0.3;
     animation: inherit;
+}
+
+nav.install {
+    background-color: var(--install-bg-color);
+    box-shadow: 0 0 8px #888;        
+    text-align: center;
+    display: none;
+}
+nav.install button.install {
+    background-color: var(--install-button-bg-color);
+    color: var(--install-button-color);
+    margin: 8px auto;
+    padding: 4px 10px;
+    border: 0px;
+    border-radius: 3px;
+}
+nav.install button.close {
+    background-color: var(--install-bg-color);
+    color: var(--install-button-bg-color);
+    margin: 8px;
+    border: 0px;
+    position: absolute;
+    right: 0px;
+    font-size: 20px;
 }

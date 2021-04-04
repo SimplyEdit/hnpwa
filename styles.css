@@ -64,9 +64,29 @@ footer {
     color: var(--navbar-color);
     padding-left: 60px;
 }
+.navbar-back,
 .navbar-brand {
     position: absolute;
     color: white;
+}
+.navbar-back {
+    display: none;
+}
+.navbar-back button {
+    width: 28px;
+    line-height: 22px;
+    border: 2px solid white;
+    text-align: center;
+    margin: 10px 16px;
+    height: auto;
+    background: transparent;
+    color: white;
+}
+body[data-nav-back] .navbar-brand {
+    display: none;
+}
+body[data-nav-back] .navbar-back {
+    display: block;
 }
 .navbar a {
     color: var(--navbar-color);
@@ -83,10 +103,10 @@ footer {
 .navbar .navbar-brand {
     flex: 0;
 }
-.navbar a.active {
+.navbar a.simply-selected {
     position: relative;
 }
-.navbar a.active::after {
+.navbar a.simply-selected::after {
     content: "";
     display: block;
     border: 3px solid var(--navbar-color);

@@ -1,16 +1,19 @@
 <!doctype html>
 <html lang="en">
+<meta charset="utf-8">
 <title>Hackernews PWA - SimplyEdit</title>
-<link rel="icon" sizes="192x192" type="image/png" href="/camil_192x192.png">
-<link rel="icon" sizes="128x128" type="image/png" href="/camil_128x128.png">
-<link rel="icon" sizes="32x32" type="image/png" href="/camil_32x32.png">
-<link rel="icon" sizes="16x16" type="image/png" href="/camil_16x16.png">
-<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="mask-icon" href="safari-pinned-tab.svg" color="#603cba">
+<meta name="msapplication-TileColor" content="#603cba">
+<meta name="theme-color" content="#ffffff">
+
 <link rel="preload" href="https://cdn.simplyedit.io/1/1.26/simply-edit.js" as="script">
 <link rel="preload" href="https://cdn.simplyedit.io/1/1.26/databind.js?v=1.26" as="script">
 <link rel="preload" href="/js/simplyview/dist/simply.everything.js" as="script">
 <link rel="preload" href="https://api.hackerwebapp.com/news?page=1" as="fetch" crossorigin="anonymous">
-<meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#4700ff">
@@ -19,9 +22,10 @@
 <link rel="stylesheet" href="styles.css">
 <header>
     <nav class="navbar-brand"><a class="navbar-logo">Y</a></nav>
+    <nav class="navbar-back"><button class="toolbar-button" data-simply-command="back">&#5130;</button></nav>
     <nav class="navbar">
         <ul class="toolbar">
-            <li><a data-simply-field="menu.news" href="#news/" class="toolbar-button active">top</a></li>
+            <li><a data-simply-field="menu.news" href="#news/" class="toolbar-button simply-selected">top</a></li>
             <li><a data-simply-field="menu.newest" href="#newest/" class="toolbar-button">new</a></li>
             <li><a data-simply-field="menu.show" href="#show/" class="toolbar-button">show</a></li>
             <li><a data-simply-field="menu.ask" href="#ask/" class="toolbar-button">ask</a></li>
@@ -94,7 +98,6 @@
         </ul>
     </nav>
 </footer>
-
 <template id="comment">
     <details class="comment" open>
         <summary>
@@ -111,7 +114,7 @@
     data-simply-storage="none"
 ></script>
 <script xsrc="https://unpkg.com/simplyview@2.0.0/dist/simply.everything.js"></script>
-<script src="/js/simplyview/dist/simply.everything.js"></script>
+<script src="js/simplyview/dist/simply.everything.js"></script>
 <script>
     editor.transformers.comment_link = {
         render: function(data) {
@@ -122,12 +125,7 @@
             return this.originalValue;
         }
     };
-
-    simply.route.init({
-        root: document.location.pathname
-    });
-
-
+    simply.route.init({ root: document.location.pathname });
     var hnpwa = simply.app({
         routes: {
             '#comments/:id': function(params) {
@@ -143,10 +141,6 @@
                 hnpwa.actions.list('news', 1);
             }
         },
-        /*
-         * Commands are triggered on click on buttons with data-simply-command attributes
-         * Here we're only using them to show and handle the installation prompt for a PWA
-         */
         commands: {
             install: function(el) {
                 document.querySelector('nav.install').style.display = '';
@@ -159,11 +153,16 @@
             close: function(el) {
                 document.querySelector('nav.install').style.display = '';
                 localStorage.setItem('installClosed', 'true');
+            },
+            back: function() {
+                history.back();
+                delete document.body.dataset.navBack;
             }
         },
         actions: {
             item: function(id) {
                 document.body.dataset.paging="off";
+                document.body.dataset.navBack="on";
                 return hnapi.item[id]()
                 .then(result => {
                     hnpwa.view.item = result;
@@ -177,15 +176,14 @@
                 .then(result => {
                     hnpwa.view.items = result;
                     hnpwa.view.show = 'items';
-                    hnpwa.view.section = section;
                     hnpwa.actions.updatePaging(section, page);
                     document.body.dataset.paging="on";
                 });
             },
             select: function(section) {
-                if (!hnpwa.view.menu) { return }
+                if (!hnpwa.view.menu) { window.setTimeout(() => hnpwa.actions.select(section), 100); return }
                 hnpwa.view.menu[hnpwa.view.section]["class"] = "toolbar-button";
-                hnpwa.view.menu[section]["class"] = "active toolbar-button";
+                hnpwa.view.menu[section]["class"] = "simply-selected toolbar-button";
                 hnpwa.view.section = section;
             },
             updatePaging: function(section, page) {

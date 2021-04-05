@@ -2,29 +2,19 @@
   "short_name": "Hackernews",
   "name": "Hackernews with SimplyEdit",
   "icons": [
-    {
-      "src": "camil-48x48.png",
-      "type": "image/png",
-      "sizes": "48x48"
-    },
-    {
-      "src": "camil-96x96.png",
-      "type": "image/png",
-      "sizes": "96x96"
-    },
-    {
-      "src": "camil-192x192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "camil-512x512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
   ],
   "display" : "standalone",
-  "start_url": "/",
+  "start_url": "https://hnpwa.dev.muze.nl/",
   "theme_color" : "#4700ff",
   "background_color": "#FFFFFF"
 }

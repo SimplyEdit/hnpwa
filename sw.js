@@ -1,18 +1,17 @@
 self.addEventListener('install', function(e) {
 	e.waitUntil(
-		caches.open('simply-edit-pwa-cache').then(function(cache) {
+		caches.open('simply-edit-pwa-cache-2')
+		.then(function(cache) {
 			return cache.addAll([
-				'https://hnpwa.simplyedit.io/',
+				'https://hnpwa.dev.muze.nl/',
 				'/manifest.json',
-//				'/camil_512x512.png',
-//				'/camil_192x192.png',
-//				'/camil_32x32.png',
-				'https://cdn.simplyedit.io/1/simply-edit.js',
-				'https://api.hackerwebapp.com/news',
-//				'https://api.hackerwebapp.com/newest',
-//				'https://api.hackerwebapp.com/show',
-//				'https://api.hackerwebapp.com/ask',
-//				'https://api.hackerwebapp.com/jobs'
+				'https://cdn.simplyedit.io/1/1.26/simply-edit.js',
+				'https://cdn.simplyedit.io/1/1.26/simply/databind.js?v=1.26',
+				'https://api.hackerwebapp.com/news?page=1',
+				'/styles.css',
+				'/js/simplyview/dist/simply.everything.js',
+				'/favicon-32x32.png',
+				'/android-chrome-192x192.png'
 			]);
 		})
 	);

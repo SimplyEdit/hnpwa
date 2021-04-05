@@ -38,6 +38,8 @@ footer {
     background: white;
     width: 100%;
     box-shadow: 0 0 8px #888;
+	position: relative;
+	z-index: 11;
 }
 /* toolbar */
 .toolbar, .toolbar li {
@@ -99,6 +101,8 @@ body[data-nav-back] .navbar-back {
     border: 2px solid white;
     text-align: center;
     margin: 10px 16px;
+	color: white;
+	text-decoration: none;
 }
 .navbar .navbar-brand {
     flex: 0;
